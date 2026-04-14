@@ -719,46 +719,18 @@
 </div>
 
 <script>
-  // Load real logo from uploaded file and replace all logo instances
-  (async () => {
-    const names = [
-      'image.png','image.jpg','image.jpeg','image.webp',
-      'logo.png','logo.jpg','logo.jpeg',
-      'hulley.png','hulley.jpg','hulley_performance.png','hulley_performance.jpg',
-      'upload.png','upload.jpg','photo.png','photo.jpg',
-      'hulley performance.png','hulley performance.jpg',
-      'Hulley Performance.png','Hulley Performance.jpg',
-      'Hulley_Performance.png','Hulley_Performance.jpg',
-      'HP_logo.png','hp_logo.png','hplogo.png',
-      'asset.png','asset.jpg','file.png','file.jpg'
-    ];
-    let dataUrl = null;
-    // Try exact names first
-    for (const name of names) {
-      try {
-        const buf = await window.fs.readFile(name);
-        if (buf && buf.byteLength > 0) {
-          const bytes = new Uint8Array(buf);
-          let b64 = '';
-          // chunk to avoid stack overflow on large files
-          for (let i = 0; i < bytes.length; i += 8192) {
-            b64 += String.fromCharCode(...bytes.subarray(i, i + 8192));
-          }
-          b64 = btoa(b64);
-          const lo = name.toLowerCase();
-          const mime = (lo.endsWith('.jpg') || lo.endsWith('.jpeg')) ? 'image/jpeg'
-                     : lo.endsWith('.webp') ? 'image/webp' : 'image/png';
-          dataUrl = `data:${mime};base64,${b64}`;
-          break;
-        }
-      } catch(e) {}
-    }
-    if (!dataUrl) return;
-    document.querySelectorAll('.logo-img').forEach(el => {
-      el.src = dataUrl;
-      el.style.display = 'block';
-    });
-    document.querySelectorAll('.logo-svg-inline').forEach(el => el.style.display = 'none');
+  // Logo — loads image.png from same folder (works on GitHub Pages)
+  (function() {
+    var img = new Image();
+    img.onload = function() {
+      document.querySelectorAll('.logo-img').forEach(function(el) {
+        el.src = 'image.png';
+        el.style.display = 'block';
+      });
+      document.querySelectorAll('.logo-svg-inline').forEach(function(el) { el.style.display = 'none'; });
+      document.querySelectorAll('.nav-logo-text-fallback').forEach(function(el) { el.style.display = 'none'; });
+    };
+    img.src = 'image.png';
   })();
 
   // Scroll reveal
@@ -802,43 +774,27 @@
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
-    btn.textContent = 'Saving to Drive…';
+    btn.textContent = 'Sending…';
 
-    const timestamp = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Dubai' });
-    const submission = { timestamp, firstName: fname, lastName: lname, email, phone, age, location, position, service: service.value, goals };
+    const subject = encodeURIComponent('New Player Enquiry — ' + fname + ' ' + lname);
+    const body = encodeURIComponent(
+      'New enquiry from Hulley Performance website\n\n' +
+      'Name: ' + fname + ' ' + lname + '\n' +
+      'Email: ' + email + '\n' +
+      'Phone: ' + (phone || '—') + '\n' +
+      'Age: ' + (age || '—') + '\n' +
+      'Location: ' + (location || '—') + '\n' +
+      'Position: ' + (position || '—') + '\n' +
+      'Service interest: ' + service.value + '\n\n' +
+      'Goals:\n' + (goals || '—')
+    );
 
-    try {
-      const prompt = `You are a data assistant. A new player enquiry has been submitted to Hulley Performance.
+    window.location.href = 'mailto:ethanjhulley@gmail.com?subject=' + subject + '&body=' + body;
 
-Your task:
-1. Search Google Drive for a Google Sheet named exactly "Hulley Performance - Player Enquiries". 
-2. If it does NOT exist, create a new Google Sheet with that exact name. Add a header row: Timestamp | First Name | Last Name | Email | Phone | Age | Location | Position | Service Interest | Goals
-3. Append the following as a new row in that sheet:
-${JSON.stringify(submission, null, 2)}
-
-Respond only with: "SAVED" if successful, or "ERROR: <reason>" if it failed.`;
-
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          mcp_servers: [{ type: 'url', url: 'https://drivemcp.googleapis.com/mcp/v1', name: 'google-drive' }],
-          messages: [{ role: 'user', content: prompt }]
-        })
-      });
-
-      const data = await res.json();
-      const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
-      if (textBlocks.includes('ERROR')) throw new Error(textBlocks);
-    } catch(err) {
-      console.error('Drive save error:', err);
-      // Still show success to user — log error silently
-    }
-
-    document.getElementById('formFields').classList.add('hide');
-    document.getElementById('formSuccess').classList.add('show');
+    setTimeout(function() {
+      document.getElementById('formFields').classList.add('hide');
+      document.getElementById('formSuccess').classList.add('show');
+    }, 800);
   }
 
   // Highlight form when nav CTA is clicked
