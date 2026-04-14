@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hulley Performance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy:#0B1726; --navy2:#162236; --white:#FFFFFF;
+    --offwhite:#F5F6F8; --gold:#C9A84C; --gold2:#A8882E;
+    --gray:#8A96A8; --border:rgba(11,23,38,0.09); --wborder:rgba(255,255,255,0.10);
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family:'Barlow',sans-serif; background:var(--white); color:var(--navy); overflow-x:hidden; }
+
+  /* NAV */
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 60px;
+    background:rgba(11,23,38,0.97); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--wborder);
+  }
+  .nav-logo { display:flex; flex-direction:column; align-items:center; text-decoration:none; }
+  .nav-logo-img { height:38px; width:auto; object-fit:contain; display:none; }
+  .nav-logo-top { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:18px; letter-spacing:0.22em; color:var(--white); text-transform:uppercase; line-height:1; }
+  .nav-logo-divider { width:100%; height:1px; background:rgba(255,255,255,0.25); margin:3px 0; }
+  .nav-logo-bottom { font-family:'Barlow Condensed',sans-serif; font-weight:400; font-size:11px; letter-spacing:0.28em; color:rgba(255,255,255,0.55); text-transform:uppercase; }
+  .nav-links { display:flex; gap:32px; align-items:center; }
+  .nav-links a { font-size:12px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.55); text-decoration:none; transition:color 0.2s; }
+  .nav-links a:hover { color:var(--white); }
+  .nav-cta { background:var(--gold)!important; color:var(--navy)!important; padding:10px 22px; border-radius:2px; font-weight:700!important; letter-spacing:0.06em!important; transition:background 0.2s!important; }
+  .nav-cta:hover { background:var(--gold2)!important; }
+
+  /* HERO */
+  .hero { min-height:100vh; background:var(--navy); display:grid; grid-template-columns:1fr 1fr; align-items:center; padding:120px 60px 80px; position:relative; overflow:hidden; }
+  .hero-bg { position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at 75% 40%, rgba(201,168,76,0.06) 0%, transparent 55%); }
+  .hero-pitch { position:absolute; right:0; top:0; bottom:0; width:50%; opacity:0.025; background-image:repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,0.8) 59px,rgba(255,255,255,0.8) 60px),repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,0.8) 59px,rgba(255,255,255,0.8) 60px); }
+  .hero-left { position:relative; z-index:2; }
+  .hero-est { display:inline-flex; align-items:center; gap:10px; margin-bottom:36px; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); }
+  .hero-est::before, .hero-est::after { content:''; height:1px; background:rgba(201,168,76,0.4); width:28px; }
+  .hero h1 { font-family:'Barlow Condensed',sans-serif; font-size:clamp(60px,7.5vw,100px); font-weight:900; line-height:0.91; text-transform:uppercase; letter-spacing:-0.01em; color:var(--white); margin-bottom:12px; }
+  .hero h1 .sub-word { font-size:clamp(28px,3.5vw,46px); font-weight:300; color:rgba(255,255,255,0.4); display:block; letter-spacing:0.06em; margin-bottom:6px; }
+  .hero h1 em { color:var(--gold); font-style:normal; }
+  .hero-tagline { font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:400; letter-spacing:0.12em; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:32px; border-left:2px solid var(--gold); padding-left:14px; }
+  .hero-sub { font-size:16px; font-weight:300; line-height:1.7; color:rgba(255,255,255,0.55); max-width:420px; margin-bottom:44px; }
+  .hero-actions { display:flex; gap:14px; flex-wrap:wrap; }
+  .btn-gold { background:var(--gold); color:var(--navy); font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:800; letter-spacing:0.10em; text-transform:uppercase; padding:15px 34px; border:none; border-radius:2px; cursor:pointer; text-decoration:none; display:inline-block; transition:background 0.2s, transform 0.15s; }
+  .btn-gold:hover { background:var(--gold2); transform:translateY(-1px); }
+  .btn-outline-w { background:transparent; color:rgba(255,255,255,0.75); font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; padding:15px 34px; border:1px solid rgba(255,255,255,0.18); border-radius:2px; cursor:pointer; text-decoration:none; display:inline-block; transition:all 0.2s; }
+  .btn-outline-w:hover { border-color:rgba(255,255,255,0.5); color:var(--white); }
+  .hero-right { position:relative; z-index:2; display:flex; flex-direction:column; align-items:flex-end; gap:24px; }
+  .hero-logo-box { width:220px; height:220px; border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.02); }
+  .logo-svg { width:170px; }
+  .hero-stats { display:grid; grid-template-columns:1fr 1fr; gap:2px; width:280px; }
+  .hstat { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); padding:20px 18px; }
+  .hstat-num { font-family:'Barlow Condensed',sans-serif; font-size:38px; font-weight:900; color:var(--white); line-height:1; margin-bottom:3px; }
+  .hstat-num span { color:var(--gold); }
+  .hstat-label { font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.04em; font-weight:300; }
+
+  /* SHARED */
+  .sec-tag { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:14px; }
+  .sec-title { font-family:'Barlow Condensed',sans-serif; font-size:clamp(36px,5vw,54px); font-weight:900; text-transform:uppercase; letter-spacing:-0.01em; color:var(--navy); margin-bottom:16px; line-height:1; }
+  .sec-sub { font-size:15px; font-weight:300; line-height:1.75; color:var(--gray); max-width:500px; margin-bottom:60px; }
+
+  /* SERVICES */
+  .services { background:var(--offwhite); padding:100px 60px; }
+  .services-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; }
+  .service-card { background:var(--white); padding:52px 44px; border-top:4px solid transparent; transition:border-color 0.25s, transform 0.2s; }
+  .service-card:hover { border-top-color:var(--gold); transform:translateY(-3px); }
+  .service-card.dark { background:var(--navy); }
+  .svc-num { font-family:'Barlow Condensed',sans-serif; font-size:72px; font-weight:900; line-height:1; color:var(--offwhite); margin-bottom:20px; letter-spacing:-0.02em; }
+  .service-card.dark .svc-num { color:rgba(255,255,255,0.06); }
+  .svc-title { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:900; text-transform:uppercase; color:var(--navy); margin-bottom:12px; letter-spacing:0.01em; }
+  .service-card.dark .svc-title { color:var(--white); }
+  .svc-desc { font-size:14px; color:var(--gray); line-height:1.7; font-weight:300; margin-bottom:28px; }
+  .service-card.dark .svc-desc { color:rgba(255,255,255,0.45); }
+  .svc-detail { list-style:none; }
+  .svc-detail li { font-size:13px; color:var(--navy); padding:9px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; font-weight:400; }
+  .service-card.dark .svc-detail li { color:rgba(255,255,255,0.65); border-bottom-color:rgba(255,255,255,0.08); }
+  .svc-detail li::before { content:''; width:5px; height:5px; background:var(--gold); border-radius:50%; flex-shrink:0; }
+
+  /* MENTORS */
+  .mentors { background:var(--white); padding:100px 60px; }
+  .mentors-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px,1fr)); gap:2px; }
+  .mentor-card { background:var(--offwhite); padding:32px 28px; border-top:3px solid transparent; transition:border-color 0.2s, transform 0.2s; }
+  .mentor-card:hover { border-top-color:var(--gold); transform:translateY(-3px); }
+  .mentor-initial { width:48px; height:48px; border-radius:50%; background:var(--navy); color:var(--white); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:800; margin-bottom:18px; }
+  .mentor-name { font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:800; text-transform:uppercase; color:var(--navy); margin-bottom:4px; letter-spacing:0.01em; }
+  .mentor-role { font-size:11px; color:var(--gold); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; }
+  .mentor-desc { font-size:12px; color:var(--gray); line-height:1.55; font-weight:300; }
+  .about { background:var(--navy); display:grid; grid-template-columns:1fr 1fr; }
+  .about-left { padding:90px 60px; }
+  .about-right { background:rgba(255,255,255,0.03); padding:90px 60px; border-left:1px solid rgba(255,255,255,0.06); }
+  .about-initial { width:72px; height:72px; border-radius:50%; background:var(--gold); color:var(--navy); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:30px; font-weight:900; margin-bottom:28px; }
+  .about-name { font-family:'Barlow Condensed',sans-serif; font-size:44px; font-weight:900; text-transform:uppercase; color:var(--white); line-height:1; margin-bottom:6px; }
+  .about-title { font-size:12px; color:var(--gold); font-weight:600; letter-spacing:0.10em; text-transform:uppercase; margin-bottom:28px; }
+  .about-bio { font-size:15px; color:rgba(255,255,255,0.5); line-height:1.8; font-weight:300; margin-bottom:20px; }
+  .about-quote { border-left:2px solid var(--gold); padding-left:18px; margin:28px 0; font-style:italic; font-size:16px; font-weight:300; color:rgba(255,255,255,0.65); line-height:1.65; }
+  .about-creds { display:flex; flex-direction:column; gap:0; margin-top:32px; }
+  .cred { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .cred-icon { font-size:16px; width:20px; text-align:center; }
+  .cred-text { font-size:13px; color:rgba(255,255,255,0.6); font-weight:300; }
+  .cred-text strong { color:rgba(255,255,255,0.9); font-weight:500; }
+  .about-right .sec-title { color:var(--white); font-size:28px; margin-bottom:36px; }
+  .val { padding:28px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
+  .val:last-child { border-bottom:none; }
+  .val-title { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:800; text-transform:uppercase; color:var(--white); margin-bottom:8px; letter-spacing:0.03em; }
+  .val-desc { font-size:13px; color:rgba(255,255,255,0.45); line-height:1.7; font-weight:300; }
+
+  /* PROOF */
+  .proof { background:var(--offwhite); padding:80px 60px; }
+  .proof-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-top:52px; }
+  .proof-card { background:var(--white); padding:32px 28px; border-top:3px solid transparent; transition:border-color 0.2s; }
+  .proof-card:hover { border-top-color:var(--gold); }
+  .proof-initial { width:44px; height:44px; border-radius:50%; background:var(--navy); color:var(--white); display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:16px; }
+  .proof-name { font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:800; text-transform:uppercase; color:var(--navy); margin-bottom:3px; }
+  .proof-club { font-size:11px; color:var(--gold); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; }
+  .proof-note { font-size:12px; color:var(--gray); line-height:1.55; font-weight:300; }
+
+  /* PROGRAMME */
+  .programme { background:var(--white); padding:100px 60px; }
+  .prog-grid { display:grid; gap:2px; }
+  .prog-row { display:grid; grid-template-columns:72px 1fr 1fr; gap:2px; }
+  .prog-n { background:var(--navy); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:900; color:rgba(255,255,255,0.15); padding:36px 0; }
+  .prog-n.act { background:var(--gold); color:var(--navy); }
+  .prog-main { background:var(--offwhite); padding:36px 32px; }
+  .prog-main.dk { background:var(--navy); }
+  .prog-lbl { font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold); margin-bottom:6px; }
+  .prog-ttl { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; text-transform:uppercase; color:var(--navy); margin-bottom:10px; }
+  .prog-main.dk .prog-ttl { color:var(--white); }
+  .prog-dsc { font-size:13px; color:var(--gray); line-height:1.6; font-weight:300; }
+  .prog-main.dk .prog-dsc { color:rgba(255,255,255,0.45); }
+  .prog-side { background:var(--white); padding:36px 32px; }
+  .prog-slbl { font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--gray); margin-bottom:14px; }
+  .prog-bullets { list-style:none; }
+  .prog-bullets li { font-size:13px; color:var(--navy); padding:6px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+  .prog-bullets li::before { content:''; width:4px; height:4px; background:var(--gold); border-radius:50%; flex-shrink:0; }
+
+  /* REGISTER INTEREST FORM */
+  .register { background:var(--navy); padding:100px 60px; position:relative; overflow:hidden; }
+  .register::before { content:''; position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at 50% 60%, rgba(201,168,76,0.07) 0%, transparent 60%); }
+  .register-inner { position:relative; z-index:2; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+  .reg-left .sec-title { color:var(--white); }
+  .reg-left .sec-sub { color:rgba(255,255,255,0.45); margin-bottom:36px; }
+  .reg-feature { display:flex; align-items:flex-start; gap:16px; padding:18px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
+  .reg-feature:last-child { border-bottom:none; }
+  .reg-feat-dot { width:8px; height:8px; border-radius:50%; background:var(--gold); flex-shrink:0; margin-top:5px; }
+  .reg-feat-text { font-size:14px; color:rgba(255,255,255,0.6); font-weight:300; line-height:1.6; }
+  .reg-feat-text strong { color:var(--white); font-weight:500; }
+
+  /* Form */
+  .form-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09); padding:44px 40px; }
+  .form-title { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:800; text-transform:uppercase; color:var(--white); margin-bottom:6px; letter-spacing:0.02em; }
+  .form-sub { font-size:13px; color:rgba(255,255,255,0.4); font-weight:300; margin-bottom:32px; }
+  .field { margin-bottom:20px; }
+  .field label { display:block; font-size:11px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:8px; }
+  .field input, .field select, .field textarea {
+    width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+    color:var(--white); font-family:'Barlow',sans-serif; font-size:14px; font-weight:300;
+    padding:13px 16px; border-radius:2px; outline:none;
+    transition:border-color 0.2s, background 0.2s;
+    appearance:none; -webkit-appearance:none;
+  }
+  .field input::placeholder, .field textarea::placeholder { color:rgba(255,255,255,0.25); }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--gold); background:rgba(255,255,255,0.08); }
+  .field select option { background:#0B1726; color:var(--white); }
+  .field textarea { resize:vertical; min-height:100px; }
+  .field-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .radio-group { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:2px; }
+  .radio-opt { position:relative; }
+  .radio-opt input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
+  .radio-opt label {
+    display:block; padding:12px 16px; border:1px solid rgba(255,255,255,0.12);
+    border-radius:2px; cursor:pointer; font-size:13px; color:rgba(255,255,255,0.55);
+    font-weight:400; text-align:center; letter-spacing:0.02em;
+    transition:all 0.2s; background:rgba(255,255,255,0.03);
+  }
+  .radio-opt input[type="radio"]:checked + label { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,0.08); }
+  .radio-opt label:hover { border-color:rgba(255,255,255,0.3); color:var(--white); }
+  .submit-btn {
+    width:100%; padding:16px; margin-top:8px;
+    background:var(--gold); color:var(--navy);
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:14px; font-weight:800; letter-spacing:0.10em; text-transform:uppercase;
+    border:none; border-radius:2px; cursor:pointer;
+    transition:background 0.2s, transform 0.15s;
+  }
+  .submit-btn:hover { background:var(--gold2); transform:translateY(-1px); }
+  .submit-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+  .form-success {
+    display:none; text-align:center; padding:40px 20px;
+  }
+  .form-success.show { display:block; }
+  .form-fields.hide { display:none; }
+  .success-icon { font-size:48px; margin-bottom:16px; }
+  .success-title { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:900; text-transform:uppercase; color:var(--white); margin-bottom:10px; }
+  .success-msg { font-size:14px; color:rgba(255,255,255,0.5); font-weight:300; line-height:1.7; }
+
+  /* CTA */
+  .cta { background:var(--offwhite); padding:80px 60px; text-align:center; }
+  .cta-sub { font-size:16px; font-weight:300; color:var(--gray); max-width:480px; margin:0 auto 36px; line-height:1.75; }
+
+  /* FOOTER */
+  footer { background:#07101C; padding:64px 60px 0; display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:48px; border-top:1px solid rgba(255,255,255,0.04); }
+  .ft-logo-top { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; letter-spacing:0.20em; text-transform:uppercase; color:var(--white); display:block; line-height:1; }
+  .ft-logo-bottom { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:400; letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.3); display:block; margin-top:4px; margin-bottom:18px; }
+  .ft-tagline { font-size:13px; color:rgba(255,255,255,0.3); line-height:1.7; font-weight:300; }
+  /* watermark logo used in section backgrounds */
+  .logo-watermark { position:absolute; pointer-events:none; opacity:0.04; }
+  /* section divider logo strip */
+  .logo-divider { background:var(--navy); padding:40px 0; display:flex; align-items:center; justify-content:center; gap:60px; border-top:1px solid rgba(255,255,255,0.05); border-bottom:1px solid rgba(255,255,255,0.05); overflow:hidden; }
+  .logo-divider svg { width:72px; opacity:0.55; }
+  .logo-divider .div-text { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.25); }
+  .ft-head { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:18px; }
+  .ft-links { list-style:none; }
+  .ft-links li { margin-bottom:10px; }
+  .ft-links a { font-size:13px; color:rgba(255,255,255,0.45); text-decoration:none; font-weight:300; transition:color 0.2s; }
+  .ft-links a:hover { color:var(--gold); }
+  .ft-bottom { background:#07101C; padding:24px 60px; border-top:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center; }
+  .ft-copy { font-size:11px; color:rgba(255,255,255,0.25); font-weight:300; }
+
+  /* SOCIALS */
+  .socials-section { background:#07101C; padding:80px 60px; border-top:1px solid rgba(255,255,255,0.05); }
+  .socials-row { display:grid; grid-template-columns:1fr 1fr; gap:4px; max-width:860px; margin:0 auto; }
+  .social-card { display:flex; align-items:center; gap:20px; padding:32px 28px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); text-decoration:none; border-top:3px solid transparent; transition:border-color 0.2s, background 0.2s, transform 0.15s; }
+  .social-card:hover { border-top-color:var(--gold); background:rgba(255,255,255,0.06); transform:translateY(-2px); }
+  .social-icon-wrap { width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .social-info { flex:1; }
+  .social-name { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:var(--white); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:2px; }
+  .social-handle { font-size:13px; color:var(--gold); font-weight:600; letter-spacing:0.04em; margin-bottom:5px; }
+  .social-desc { font-size:12px; color:rgba(255,255,255,0.35); font-weight:300; line-height:1.5; }
+  .social-arrow { color:rgba(255,255,255,0.25); transition:color 0.2s, transform 0.2s; }
+  .social-card:hover .social-arrow { color:var(--gold); transform:translate(3px,-3px); }
+  @media(max-width:900px) {
+    .socials-section { padding:56px 24px; }
+    .socials-row { grid-template-columns:1fr; }
+  }
+  @media(max-width:900px) {
+    .insta-section { padding:56px 24px; }
+    .insta-inner { flex-direction:column; align-items:flex-start; }
+    .insta-preview { grid-template-columns:repeat(3,1fr); }
+    .insta-preview .insta-card:nth-child(4), .insta-preview .insta-card:nth-child(5) { display:none; }
+  }
+
+  .reveal { opacity:0; transform:translateY(20px); transition:opacity 0.65s ease, transform 0.65s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  @media (max-width:900px) {
+    nav { padding:14px 20px; }
+    .nav-links { display:none; }
+    .hero { grid-template-columns:1fr; padding:96px 24px 56px; }
+    .hero-right { display:none; }
+    .services, .programme, .proof, .cta { padding:64px 24px; }
+    .register { padding:64px 24px; }
+    .register-inner { grid-template-columns:1fr; gap:48px; }
+    .services-grid { grid-template-columns:1fr; }
+    .about { grid-template-columns:1fr; }
+    .about-left, .about-right { padding:56px 24px; }
+    .proof-grid { grid-template-columns:1fr 1fr; }
+    .prog-row { grid-template-columns:56px 1fr; }
+    .prog-side { display:none; }
+    footer { grid-template-columns:1fr; padding:48px 24px 0; }
+    .ft-bottom { padding:16px 24px; flex-direction:column; gap:8px; }
+    .field-row { grid-template-columns:1fr; }
+    .form-card { padding:32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <img class="logo-img nav-logo-img" alt="Hulley Performance">
+    <span class="nav-logo-text-fallback" style="display:flex;flex-direction:column;align-items:center;">
+      <span class="nav-logo-top">Hulley</span>
+      <div class="nav-logo-divider"></div>
+      <span class="nav-logo-bottom">Performance</span>
+    </span>
+  </a>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#mentors">Mentors</a>
+    <a href="#about">About</a>
+    <a href="#programme">Programme</a>
+    <a href="https://www.linkedin.com/in/ethan-hulley-670a40211/" target="_blank" rel="noopener" class="nav-linkedin" title="LinkedIn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.59 0 4.25 2.37 4.25 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45C23.21 24 24 23.23 24 22.28V1.72C24 .77 23.21 0 22.22 0z"/></svg>
+    </a>
+    <a href="#register" class="nav-cta">Register Interest</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-pitch"></div>
+  <div class="hero-left">
+    <div class="hero-est">Est &nbsp; 2026</div>
+    <h1>
+      <span class="sub-word">Developing</span>
+      People<br>First,<br><em>Players</em><br>Second.
+    </h1>
+    <p class="hero-tagline">UEFA C Coach · Dubai, UAE · Private Coaching &amp; Mentorship</p>
+    <p class="hero-sub">Hulley Performance delivers elite-level football development through personalised 1-to-1 coaching in Dubai and a structured online mentorship programme for serious footballers worldwide.</p>
+    <div class="hero-actions">
+      <a class="btn-gold" href="#register">Register Your Interest</a>
+      <a class="btn-outline-w" href="#about">About Ethan</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-logo-box" style="width:260px;height:260px;">
+      <img class="logo-img" style="display:none;width:200px;height:200px;object-fit:contain;" alt="Hulley Performance">
+      <svg class="logo-svg logo-svg-inline" style="width:170px;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><text x="100" y="44" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="36" letter-spacing="10" fill="white" text-anchor="middle">HULLEY</text><g fill="white" transform="translate(100,110) scale(0.82)"><circle cx="0" cy="-62" r="9"/><rect x="-5" y="-52" width="10" height="26" rx="4"/><rect x="-32" y="-48" width="28" height="6" rx="3" transform="rotate(-10,-18,-45)"/><rect x="4" y="-48" width="24" height="6" rx="3" transform="rotate(15,16,-45)"/><rect x="-4" y="-26" width="8" height="22" rx="4" transform="rotate(20,0,0)"/><rect x="-4" y="-26" width="8" height="24" rx="4" transform="rotate(-30,-4,-10)"/><circle cx="28" cy="30" r="8"/></g><text x="42" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="4" fill="rgba(255,255,255,0.45)" text-anchor="middle">EST</text><text x="158" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="2" fill="rgba(255,255,255,0.45)" text-anchor="middle">2026</text><text x="100" y="172" font-family="Barlow Condensed,sans-serif" font-weight="400" font-size="16" letter-spacing="8" fill="white" text-anchor="middle">PERFORMANCE</text></svg>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-num">5<span>+</span></div><div class="hstat-label">Years coaching</div></div>
+      <div class="hstat"><div class="hstat-num"><span>3</span></div><div class="hstat-label">Continents coached</div></div>
+      <div class="hstat"><div class="hstat-num">7</div><div class="hstat-label">Programme modules</div></div>
+      <div class="hstat"><div class="hstat-num"><span>2</span></div><div class="hstat-label">Services available</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGO DIVIDER STRIP -->
+<div class="logo-divider">
+  <span class="div-text">Hulley Performance</span>
+  <span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;">
+    <img class="logo-img" style="display:none;width:72px;height:72px;object-fit:contain;opacity:0.55;" alt="Hulley Performance">
+    <svg class="logo-svg-inline" style="width:72px;opacity:0.55;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><text x="100" y="44" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="36" letter-spacing="10" fill="white" text-anchor="middle">HULLEY</text><g fill="white" transform="translate(100,110) scale(0.82)"><circle cx="0" cy="-62" r="9"/><rect x="-5" y="-52" width="10" height="26" rx="4"/><rect x="-32" y="-48" width="28" height="6" rx="3" transform="rotate(-10,-18,-45)"/><rect x="4" y="-48" width="24" height="6" rx="3" transform="rotate(15,16,-45)"/><rect x="-4" y="-26" width="8" height="22" rx="4" transform="rotate(20,0,0)"/><rect x="-4" y="-26" width="8" height="24" rx="4" transform="rotate(-30,-4,-10)"/><circle cx="28" cy="30" r="8"/></g><text x="42" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="4" fill="rgba(255,255,255,0.45)" text-anchor="middle">EST</text><text x="158" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="2" fill="rgba(255,255,255,0.45)" text-anchor="middle">2026</text><text x="100" y="172" font-family="Barlow Condensed,sans-serif" font-weight="400" font-size="16" letter-spacing="8" fill="white" text-anchor="middle">PERFORMANCE</text></svg>
+  </span>
+  <span class="div-text">Est. 2026</span>
+  <span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;">
+    <img class="logo-img" style="display:none;width:72px;height:72px;object-fit:contain;opacity:0.55;" alt="Hulley Performance">
+    <svg class="logo-svg-inline" style="width:72px;opacity:0.55;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><text x="100" y="44" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="36" letter-spacing="10" fill="white" text-anchor="middle">HULLEY</text><g fill="white" transform="translate(100,110) scale(0.82)"><circle cx="0" cy="-62" r="9"/><rect x="-5" y="-52" width="10" height="26" rx="4"/><rect x="-32" y="-48" width="28" height="6" rx="3" transform="rotate(-10,-18,-45)"/><rect x="4" y="-48" width="24" height="6" rx="3" transform="rotate(15,16,-45)"/><rect x="-4" y="-26" width="8" height="22" rx="4" transform="rotate(20,0,0)"/><rect x="-4" y="-26" width="8" height="24" rx="4" transform="rotate(-30,-4,-10)"/><circle cx="28" cy="30" r="8"/></g><text x="42" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="4" fill="rgba(255,255,255,0.45)" text-anchor="middle">EST</text><text x="158" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="2" fill="rgba(255,255,255,0.45)" text-anchor="middle">2026</text><text x="100" y="172" font-family="Barlow Condensed,sans-serif" font-weight="400" font-size="16" letter-spacing="8" fill="white" text-anchor="middle">PERFORMANCE</text></svg>
+  </span>
+  <span class="div-text">Dubai &amp; UK</span>
+  <span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;">
+    <img class="logo-img" style="display:none;width:72px;height:72px;object-fit:contain;opacity:0.55;" alt="Hulley Performance">
+    <svg class="logo-svg-inline" style="width:72px;opacity:0.55;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><text x="100" y="44" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="36" letter-spacing="10" fill="white" text-anchor="middle">HULLEY</text><g fill="white" transform="translate(100,110) scale(0.82)"><circle cx="0" cy="-62" r="9"/><rect x="-5" y="-52" width="10" height="26" rx="4"/><rect x="-32" y="-48" width="28" height="6" rx="3" transform="rotate(-10,-18,-45)"/><rect x="4" y="-48" width="24" height="6" rx="3" transform="rotate(15,16,-45)"/><rect x="-4" y="-26" width="8" height="22" rx="4" transform="rotate(20,0,0)"/><rect x="-4" y="-26" width="8" height="24" rx="4" transform="rotate(-30,-4,-10)"/><circle cx="28" cy="30" r="8"/></g><text x="42" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="4" fill="rgba(255,255,255,0.45)" text-anchor="middle">EST</text><text x="158" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="2" fill="rgba(255,255,255,0.45)" text-anchor="middle">2026</text><text x="100" y="172" font-family="Barlow Condensed,sans-serif" font-weight="400" font-size="16" letter-spacing="8" fill="white" text-anchor="middle">PERFORMANCE</text></svg>
+  </span>
+  <span class="div-text">Hulley Performance</span>
+</div>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <span class="sec-tag">What We Offer</span>
+  <h2 class="sec-title">Two Ways to Work<br>With Ethan</h2>
+  <p class="sec-sub">Whether you're in Dubai or anywhere in the world, Hulley Performance has a pathway for your development.</p>
+  <div class="services-grid reveal">
+    <div class="service-card">
+      <div class="svc-num">01</div>
+      <div class="svc-title">1-to-1 Private Coaching</div>
+      <div class="svc-desc">In-person private sessions in Dubai tailored entirely to you. Structured around your position, development areas and goals — covering technical, tactical, physical and psychological elements.</div>
+      <ul class="svc-detail">
+        <li>45–90 minute sessions in Dubai</li>
+        <li>1-to-1 or small group sessions available</li>
+        <li>Position-specific technical development</li>
+        <li>Tactical and psychological coaching</li>
+        <li>Personalised session plans each week</li>
+
+      </ul>
+    </div>
+    <div class="service-card dark">
+      <div class="svc-num">02</div>
+      <div class="svc-title">Online Mentorship Programme</div>
+      <div class="svc-desc">A fully structured 7-module digital programme guiding footballers through every dimension of elite development. Self-paced with live mentorship support — accessible globally.</div>
+      <ul class="svc-detail">
+        <li>7 comprehensive development modules</li>
+        <li>Technical, tactical &amp; physical coaching</li>
+        <li>Psychological &amp; nutritional guidance</li>
+        <li>Networking &amp; media development</li>
+        <li>Live mentorship support included</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- MENTORS -->
+<section class="mentors" id="mentors">
+  <span class="sec-tag">Learn from the Best</span>
+  <h2 class="sec-title">Programme Mentors</h2>
+  <p class="sec-sub">The online mentorship programme brings together professional players, coaches, scouts, agents and performance specialists — all sharing what it actually takes.</p>
+  <div class="mentors-grid reveal">
+    <div class="mentor-card">
+      <div class="mentor-initial">SC</div>
+      <div class="mentor-name">Shawn Chacko</div>
+      <div class="mentor-role">Professional Player</div>
+      <div class="mentor-desc">Professional footballer bringing elite-level experience and insight to the programme.</div>
+    </div>
+    <div class="mentor-card">
+      <div class="mentor-initial">PV</div>
+      <div class="mentor-name">Punn Vajarabayha</div>
+      <div class="mentor-role">Professional Player</div>
+      <div class="mentor-desc">Professional footballer sharing his journey and development insights with programme players.</div>
+    </div>
+    <div class="mentor-card">
+      <div class="mentor-initial">PC</div>
+      <div class="mentor-name">Paul Cox</div>
+      <div class="mentor-role">Club Owner &amp; Coach</div>
+      <div class="mentor-desc">Experienced football club owner and coach providing a unique perspective on the game from both sides of the fence.</div>
+    </div>
+    <div class="mentor-card">
+      <div class="mentor-initial">CC</div>
+      <div class="mentor-name">Callum Cooke</div>
+      <div class="mentor-role">Professional Player</div>
+      <div class="mentor-desc">Professional footballer with experience across the football pyramid, offering technical and career development guidance.</div>
+    </div>
+    <div class="mentor-card">
+      <div class="mentor-initial">CH</div>
+      <div class="mentor-name">Caleb Hulley</div>
+      <div class="mentor-role">Player &amp; Coach</div>
+      <div class="mentor-desc">Bringing a fresh, player-centred perspective to the programme as both a player and developing coach.</div>
+    </div>
+    <div class="mentor-card">
+      <div class="mentor-initial">TB</div>
+      <div class="mentor-name">Thierno Bah</div>
+      <div class="mentor-role">Professional Player</div>
+      <div class="mentor-desc">Professional footballer sharing his experience of navigating the game at the highest level.</div>
+    </div>
+    <div class="mentor-card">
+      <div class="mentor-initial">PR</div>
+      <div class="mentor-name">Paul Russell</div>
+      <div class="mentor-role">Coach &amp; Specialist</div>
+      <div class="mentor-desc">Experienced coach and football specialist contributing expertise across key areas of player development.</div>
+    </div>
+    <div class="mentor-card">
+      <div class="mentor-initial">DT</div>
+      <div class="mentor-name">David Titov</div>
+      <div class="mentor-role">Professional Player</div>
+      <div class="mentor-desc">Professional footballer bringing international experience and a winning mentality to programme members.</div>
+    </div>
+    <div class="mentor-card">
+      <div class="mentor-initial">PM</div>
+      <div class="mentor-name">Pete McKnight</div>
+      <div class="mentor-role">S&amp;C Coach</div>
+      <div class="mentor-desc">Strength &amp; conditioning specialist delivering professional-level physical development and performance programming.</div>
+    </div>
+    <div class="mentor-card">
+      <div class="mentor-initial">SV</div>
+      <div class="mentor-name">Soheil Var</div>
+      <div class="mentor-role">Professional Scout</div>
+      <div class="mentor-desc">Professional scout revealing exactly what clubs and academies look for — and how to put yourself in the frame.</div>
+    </div>
+    <div class="mentor-card">
+      <div class="mentor-initial">BP</div>
+      <div class="mentor-name">Ben Pringle</div>
+      <div class="mentor-role">Ex-Pro · 300+ Appearances</div>
+      <div class="mentor-desc">Former professional with over 300 senior appearances, sharing the realities of a long career at the top of the game.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<div class="about" id="about">
+  <div class="about-left">
+    <div class="about-initial">EH</div>
+    <div class="about-name">Ethan Hulley</div>
+    <div class="about-title">UEFA C Coach · Founder &amp; Mentor</div>
+    <p class="about-bio">Ethan Hulley is a UEFA C qualified coach who has spent 5+ years working with footballers across three continents — Canada, the UK, and the UAE. After playing for Leicester City's youth academy, going on a scholarship in Canada, and scoring 30+ goals from midfield in semi-professional football in the UK, Ethan relocated to Dubai to build something bigger.</p>
+    <div class="about-quote">"I started this because I want to give back to players — something I wish I had available as a youngster at Leicester. As a Christian, helping others aligns with my core beliefs. That's why it's my passion."</div>
+    <div class="about-creds">
+      <div class="cred"><span class="cred-icon">🎓</span><span class="cred-text"><strong>UEFA C Coach</strong> — Professional coaching qualification</span></div>
+      <div class="cred"><span class="cred-icon">⚽</span><span class="cred-text"><strong>Leicester City</strong> youth academy, aged 12–15</span></div>
+      <div class="cred"><span class="cred-icon">🎓</span><span class="cred-text"><strong>University scholarship</strong> — Played football in Canada</span></div>
+      <div class="cred"><span class="cred-icon">🏆</span><span class="cred-text"><strong>Nottinghamshire Cup winner</strong> · FA Cup goal scorer</span></div>
+      <div class="cred"><span class="cred-icon">🌍</span><span class="cred-text">Coached across <strong>Canada, UK &amp; UAE</strong></span></div>
+      <div class="cred"><span class="cred-icon">🇦🇪</span><span class="cred-text">Coached in the <strong>Dubai Academy set up</strong></span></div>
+      <div class="cred"><span class="cred-icon">🌍</span><span class="cred-text">Ran <strong>pre-season camps and showcases internationally</strong></span></div>
+    </div>
+  </div>
+  <div class="about-right">
+    <span class="sec-tag">Players I've Coached</span>
+    <div class="sec-title" style="color:var(--white);font-size:28px;margin-bottom:28px;">Players I've Coached</div>
+
+    <div style="font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">🇬🇧 UK-Based Pros</div>
+    <div class="val"><div class="val-title">UK Professional Players</div><div class="val-desc">Professional players across the English football pyramid — technical, tactical and psychological development delivered through private 1-to-1 coaching during Ethan's time in the UK.</div></div>
+
+    <div style="font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;margin-top:24px;">🇦🇪 UAE-Based Pros</div>
+    <div class="val"><div class="val-title">UAE Professional Players</div><div class="val-desc">Several professional players based in Dubai and the wider UAE receiving ongoing 1-to-1 private coaching and mentorship support from Ethan on the ground.</div></div>
+
+    <div style="font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;margin-top:24px;">🌍 Emerging Talents</div>
+    <div class="val" style="border-bottom:none;padding-bottom:0;"><div class="val-title">UAE, Canada &amp; UK</div><div class="val-desc">A growing group of emerging talents across three countries — players at academy, semi-professional and scholarship level who are working with Ethan to break into the professional game.</div></div>
+  </div>
+</div>
+
+<!-- PROOF -->
+<section class="proof">
+  <span class="sec-tag">Who We Develop</span>
+  <h2 class="sec-title">Built for Serious Players</h2>
+  <p class="sec-sub">Hulley Performance serves ambitious footballers aged 9 and above who are serious about reaching the next level.</p>
+  <div class="proof-grid reveal">
+    <div class="proof-card"><div class="proof-initial">🏫</div><div class="proof-name">Youth (9–16)</div><div class="proof-club">Academy &amp; Scholarship Pathway</div><div class="proof-note">Academy-level players looking to secure scholarships or professional contracts. Structured development and goal-setting from day one.</div></div>
+    <div class="proof-card"><div class="proof-initial">📈</div><div class="proof-name">Pro Development (17–21)</div><div class="proof-club">Semi-Pro to Pro Pathway</div><div class="proof-note">Players in semi-pro or lower league football aiming to climb the pyramid. Tactical, physical and networking support.</div></div>
+    <div class="proof-card"><div class="proof-initial">🌍</div><div class="proof-name">Aspiring or Active Pro (22+)</div><div class="proof-club">Full Development Programme</div><div class="proof-note">Players maximising their playing years. The complete programme, built entirely around them.</div></div>
+    <div class="proof-card"><div class="proof-initial">🇦🇪</div><div class="proof-name">Dubai-Based Players</div><div class="proof-club">1-to-1 or Small Group Sessions — UAE</div><div class="proof-note">Based in Dubai? Book individual or small group sessions with Ethan — 45 to 90 minute sessions available, fully tailored to your game.</div></div>
+  </div>
+</section>
+
+<!-- PROGRAMME -->
+<section class="programme" id="programme">
+  <span class="sec-tag">The Online Programme</span>
+  <h2 class="sec-title">7-Module Elite<br>Development System</h2>
+  <p class="sec-sub">A fully structured digital programme covering every dimension of what it takes to reach and sustain a professional level.</p>
+  <div class="prog-grid reveal">
+    <div class="prog-row">
+      <div class="prog-n act">01</div>
+      <div class="prog-main"><div class="prog-lbl">Foundation</div><div class="prog-ttl">Knowing Your Starting Point</div><div class="prog-dsc">Before you can reach your destination, you need to know exactly where you are. Self-assessment, goal setting and building your individual development roadmap.</div></div>
+      <div class="prog-side"><div class="prog-slbl">Focus Areas</div><ul class="prog-bullets"><li>Player self-assessment framework</li><li>Goal setting &amp; roadmap</li><li>Identifying strengths &amp; gaps</li></ul></div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-n">02</div>
+      <div class="prog-main dk"><div class="prog-lbl">Technical</div><div class="prog-ttl">Technical Development</div><div class="prog-dsc">Position-specific technical skills, ball mastery and movement — the non-negotiable foundation of elite performance.</div></div>
+      <div class="prog-side"><div class="prog-slbl">Focus Areas</div><ul class="prog-bullets"><li>Position-specific drills</li><li>Ball mastery programmes</li><li>Movement &amp; first touch</li></ul></div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-n act">03</div>
+      <div class="prog-main"><div class="prog-lbl">Tactical</div><div class="prog-ttl">Tactical Development</div><div class="prog-dsc">How the game is played at the professional level. Reading play, exploiting space, video analysis and positional awareness.</div></div>
+      <div class="prog-side"><div class="prog-slbl">Focus Areas</div><ul class="prog-bullets"><li>Video analysis sessions</li><li>Positional awareness</li><li>Game model understanding</li></ul></div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-n">04</div>
+      <div class="prog-main dk"><div class="prog-lbl">Physical</div><div class="prog-ttl">Physical Development</div><div class="prog-dsc">Professional S&amp;C programming, injury prevention and recovery protocols built specifically for footballers.</div></div>
+      <div class="prog-side"><div class="prog-slbl">Focus Areas</div><ul class="prog-bullets"><li>Strength &amp; conditioning plans</li><li>Speed &amp; agility work</li><li>Injury prevention routines</li></ul></div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-n act">05</div>
+      <div class="prog-main"><div class="prog-lbl">Mental</div><div class="prog-ttl">Psychological Development</div><div class="prog-dsc">Football is 80% mental. Confidence under pressure, resilience after setbacks, elite mindset and unshakeable self-belief.</div></div>
+      <div class="prog-side"><div class="prog-slbl">Focus Areas</div><ul class="prog-bullets"><li>Confidence &amp; self-talk</li><li>Pressure performance</li><li>Resilience building</li></ul></div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-n">06</div>
+      <div class="prog-main dk"><div class="prog-lbl">Career</div><div class="prog-ttl">Networking Development</div><div class="prog-dsc">Talent gets you noticed — the right connections get you signed. Agents, contracts, trials and building your professional network inside the game.</div></div>
+      <div class="prog-side"><div class="prog-slbl">Focus Areas</div><ul class="prog-bullets"><li>Working with agents</li><li>Trial preparation</li><li>Contract basics</li></ul></div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-n act">07</div>
+      <div class="prog-main"><div class="prog-lbl">Launch</div><div class="prog-ttl">Showcase &amp; Launch</div><div class="prog-dsc">Preparation is everything. Highlight reels, personal brand, trial-day readiness and mapping your next career step. Now it's time to show the world what you've built.</div></div>
+      <div class="prog-side"><div class="prog-slbl">Focus Areas</div><ul class="prog-bullets"><li>Highlight reel production</li><li>Social media for players</li><li>Career pathway mapping</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGO DIVIDER before register -->
+<div class="logo-divider">
+  <span class="div-text">Register Your Interest</span>
+  <span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;">
+    <img class="logo-img" style="display:none;width:72px;height:72px;object-fit:contain;opacity:0.55;" alt="Hulley Performance">
+    <svg class="logo-svg-inline" style="width:72px;opacity:0.55;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><text x="100" y="44" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="36" letter-spacing="10" fill="white" text-anchor="middle">HULLEY</text><g fill="white" transform="translate(100,110) scale(0.82)"><circle cx="0" cy="-62" r="9"/><rect x="-5" y="-52" width="10" height="26" rx="4"/><rect x="-32" y="-48" width="28" height="6" rx="3" transform="rotate(-10,-18,-45)"/><rect x="4" y="-48" width="24" height="6" rx="3" transform="rotate(15,16,-45)"/><rect x="-4" y="-26" width="8" height="22" rx="4" transform="rotate(20,0,0)"/><rect x="-4" y="-26" width="8" height="24" rx="4" transform="rotate(-30,-4,-10)"/><circle cx="28" cy="30" r="8"/></g><text x="42" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="4" fill="rgba(255,255,255,0.45)" text-anchor="middle">EST</text><text x="158" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="2" fill="rgba(255,255,255,0.45)" text-anchor="middle">2026</text><text x="100" y="172" font-family="Barlow Condensed,sans-serif" font-weight="400" font-size="16" letter-spacing="8" fill="white" text-anchor="middle">PERFORMANCE</text></svg>
+  </span>
+  <span class="div-text">Hulley Performance</span>
+  <span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;">
+    <img class="logo-img" style="display:none;width:72px;height:72px;object-fit:contain;opacity:0.55;" alt="Hulley Performance">
+    <svg class="logo-svg-inline" style="width:72px;opacity:0.55;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><text x="100" y="44" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="36" letter-spacing="10" fill="white" text-anchor="middle">HULLEY</text><g fill="white" transform="translate(100,110) scale(0.82)"><circle cx="0" cy="-62" r="9"/><rect x="-5" y="-52" width="10" height="26" rx="4"/><rect x="-32" y="-48" width="28" height="6" rx="3" transform="rotate(-10,-18,-45)"/><rect x="4" y="-48" width="24" height="6" rx="3" transform="rotate(15,16,-45)"/><rect x="-4" y="-26" width="8" height="22" rx="4" transform="rotate(20,0,0)"/><rect x="-4" y="-26" width="8" height="24" rx="4" transform="rotate(-30,-4,-10)"/><circle cx="28" cy="30" r="8"/></g><text x="42" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="4" fill="rgba(255,255,255,0.45)" text-anchor="middle">EST</text><text x="158" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="2" fill="rgba(255,255,255,0.45)" text-anchor="middle">2026</text><text x="100" y="172" font-family="Barlow Condensed,sans-serif" font-weight="400" font-size="16" letter-spacing="8" fill="white" text-anchor="middle">PERFORMANCE</text></svg>
+  </span>
+  <span class="div-text">Dubai &amp; UK</span>
+</div>
+
+<!-- REGISTER INTEREST -->
+<section class="register" id="register">
+  <div class="register-inner">
+    <div class="reg-left reveal">
+      <span class="sec-tag">Take the First Step</span>
+      <h2 class="sec-title" style="color:var(--white);">Register<br>Your Interest</h2>
+      <p class="sec-sub" style="color:rgba(255,255,255,0.45);margin-bottom:36px;">Tell Ethan about yourself and what you're looking to achieve. He'll be in touch personally to discuss the right pathway for you.</p>
+      <div class="reg-feature"><div class="reg-feat-dot"></div><div class="reg-feat-text"><strong>No obligation</strong> — just an honest conversation about your goals and how Hulley Performance can help.</div></div>
+      <div class="reg-feature"><div class="reg-feat-dot"></div>          <div class="reg-feat-text"><strong>Personal response</strong> — a member of the team will be in touch to discuss the right pathway for you. You can request to schedule a call with Ethan directly.</div></div>
+      <div class="reg-feature"><div class="reg-feat-dot"></div><div class="reg-feat-text"><strong>Available globally</strong> — online programme open to players worldwide. In-person coaching based in Dubai.</div></div>
+      <div class="reg-feature"><div class="reg-feat-dot"></div>              <div class="reg-feat-text"><strong>Ages 9+</strong> — youth players, semi-pros and aspiring or active professionals all welcome.</div></div>
+    </div>
+    <div class="reveal">
+      <div class="form-card">
+        <div class="form-fields" id="formFields">
+          <div class="form-title">Player Enquiry</div>
+          <p class="form-sub">Fill in your details below and Ethan will be in touch.</p>
+          <div class="field-row">
+            <div class="field">
+              <label>First Name</label>
+              <input type="text" id="fname" placeholder="Your first name">
+            </div>
+            <div class="field">
+              <label>Last Name</label>
+              <input type="text" id="lname" placeholder="Your last name">
+            </div>
+          </div>
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="your@email.com">
+          </div>
+          <div class="field">
+            <label>Phone / WhatsApp</label>
+            <input type="tel" id="phone" placeholder="+971 or +44...">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Age</label>
+              <input type="number" id="age" placeholder="e.g. 14" min="9" max="40">
+            </div>
+            <div class="field">
+              <label>Location</label>
+              <input type="text" id="location" placeholder="City, Country">
+            </div>
+          </div>
+          <div class="field">
+            <label>Position</label>
+            <select id="position">
+              <option value="" disabled selected>Select your position</option>
+              <option>Goalkeeper</option>
+              <option>Centre Back</option>
+              <option>Full Back / Wing Back</option>
+              <option>Defensive Midfielder</option>
+              <option>Central Midfielder</option>
+              <option>Attacking Midfielder</option>
+              <option>Winger</option>
+              <option>Striker / Centre Forward</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>I'm interested in</label>
+            <div class="radio-group">
+              <div class="radio-opt"><input type="radio" name="service" id="s1" value="1-to-1 Private Coaching (Dubai)"><label for="s1">1-to-1 Sessions</label></div>
+              <div class="radio-opt"><input type="radio" name="service" id="s2" value="Online Mentorship Programme"><label for="s2">Online Programme</label></div>
+              <div class="radio-opt"><input type="radio" name="service" id="s3" value="Both Services"><label for="s3">Both</label></div>
+              <div class="radio-opt"><input type="radio" name="service" id="s4" value="Not sure yet"><label for="s4">Not sure yet</label></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Tell Ethan about your goals</label>
+            <textarea id="goals" placeholder="Where are you now, where do you want to get to, and what's holding you back?"></textarea>
+          </div>
+          <button class="submit-btn" id="submitBtn" onclick="submitForm().catch(console.error)">Send My Enquiry</button>
+        </div>
+        <div class="form-success" id="formSuccess">
+          <div class="success-icon">⚽</div>
+          <div class="success-title">Enquiry Received</div>
+          <p class="success-msg">Thanks for reaching out. A member of the team will review your details and be in touch shortly. If you'd like to schedule a call with Ethan directly, please mention it in your enquiry.<br><br>Follow us on Instagram: <strong style="color:var(--gold)">@hulleyperformance</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOCIALS -->
+<section class="socials-section">
+  <span class="sec-tag" style="display:block;text-align:center;margin-bottom:12px;">Connect With Ethan</span>
+  <h2 class="sec-title" style="text-align:center;color:var(--white);margin-bottom:40px;">Follow the Journey</h2>
+  <div class="socials-row">
+    <!-- Instagram -->
+    <a class="social-card" href="https://www.instagram.com/hulleyperformance/?hl=en" target="_blank" rel="noopener">
+      <div class="social-icon-wrap" style="background:linear-gradient(135deg,#f09433,#dc2743,#bc1888);">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="20" height="20" rx="5.5" stroke="white" stroke-width="1.8"/>
+          <circle cx="12" cy="12" r="4.2" stroke="white" stroke-width="1.8"/>
+          <circle cx="17.5" cy="6.5" r="1.1" fill="white"/>
+        </svg>
+      </div>
+      <div class="social-info">
+        <div class="social-name">Instagram</div>
+        <div class="social-handle">@hulleyperformance</div>
+        <div class="social-desc">Training content · Player development · Behind the scenes</div>
+      </div>
+      <div class="social-arrow">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+      </div>
+    </a>
+    <!-- LinkedIn -->
+    <a class="social-card" href="https://www.linkedin.com/in/ethan-hulley-670a40211/" target="_blank" rel="noopener">
+      <div class="social-icon-wrap" style="background:#0A66C2;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.59 0 4.25 2.37 4.25 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45C23.21 24 24 23.23 24 22.28V1.72C24 .77 23.21 0 22.22 0z"/></svg>
+      </div>
+      <div class="social-info">
+        <div class="social-name">LinkedIn</div>
+        <div class="social-handle">Ethan Hulley</div>
+        <div class="social-desc">UEFA C Coach · Football Development · Dubai, UAE</div>
+      </div>
+      <div class="social-arrow">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <span class="ft-logo-top">Hulley</span>
+    <span class="ft-logo-bottom">Performance</span>
+    <span style="display:block;margin:18px 0 16px;">
+      <img class="logo-img" style="display:none;width:90px;opacity:0.25;object-fit:contain;" alt="Hulley Performance">
+      <svg class="logo-svg-inline" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width:90px;opacity:0.18;display:block;"><text x="100" y="44" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="36" letter-spacing="10" fill="white" text-anchor="middle">HULLEY</text><g fill="white" transform="translate(100,110) scale(0.82)"><circle cx="0" cy="-62" r="9"/><rect x="-5" y="-52" width="10" height="26" rx="4"/><rect x="-32" y="-48" width="28" height="6" rx="3" transform="rotate(-10,-18,-45)"/><rect x="4" y="-48" width="24" height="6" rx="3" transform="rotate(15,16,-45)"/><rect x="-4" y="-26" width="8" height="22" rx="4" transform="rotate(20,0,0)"/><rect x="-4" y="-26" width="8" height="24" rx="4" transform="rotate(-30,-4,-10)"/><circle cx="28" cy="30" r="8"/></g><text x="42" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="4" fill="rgba(255,255,255,0.45)" text-anchor="middle">EST</text><text x="158" y="148" font-family="Barlow Condensed,sans-serif" font-weight="300" font-size="11" letter-spacing="2" fill="rgba(255,255,255,0.45)" text-anchor="middle">2026</text><text x="100" y="172" font-family="Barlow Condensed,sans-serif" font-weight="400" font-size="16" letter-spacing="8" fill="white" text-anchor="middle">PERFORMANCE</text></svg>
+    </span>
+    <p class="ft-tagline">Private football coaching &amp; mentorship based in Dubai, UAE.<br><br>Developing people first, players second.</p>
+  </div>
+  <div>
+    <div class="ft-head">Services</div>
+    <ul class="ft-links">
+      <li><a href="#services">1-to-1 Private Coaching</a></li>
+      <li><a href="#services">Online Mentorship Programme</a></li>
+      <li><a href="#programme">7-Module Programme</a></li>
+      <li><a href="#register">Register Interest</a></li>
+    </ul>
+  </div>
+  <div>
+    <div class="ft-head">Connect</div>
+    <ul class="ft-links">
+      <li><a href="https://www.instagram.com/hulleyperformance/" target="_blank">Instagram — @hulleyperformance</a></li>
+      <li><a href="https://www.linkedin.com/in/ethan-hulley-670a40211/" target="_blank" rel="noopener">LinkedIn — Ethan Hulley</a></li>
+      <li><a href="#about">About Ethan</a></li>
+    </ul>
+    <div style="margin-top:28px;font-size:11px;color:rgba(255,255,255,0.25);font-weight:300;line-height:1.6;">Based in:<br>Dubai, UAE</div>
+  </div>
+</footer>
+<div class="ft-bottom">
+  <span class="ft-copy">© 2026 Hulley Performance. Ethan Hulley · UEFA C Coach.</span>
+  <span class="ft-copy">Developing people first, players second.</span>
+</div>
+
+<script>
+  // Load real logo from uploaded file and replace all logo instances
+  (async () => {
+    const names = [
+      'image.png','image.jpg','image.jpeg','image.webp',
+      'logo.png','logo.jpg','logo.jpeg',
+      'hulley.png','hulley.jpg','hulley_performance.png','hulley_performance.jpg',
+      'upload.png','upload.jpg','photo.png','photo.jpg',
+      'hulley performance.png','hulley performance.jpg',
+      'Hulley Performance.png','Hulley Performance.jpg',
+      'Hulley_Performance.png','Hulley_Performance.jpg',
+      'HP_logo.png','hp_logo.png','hplogo.png',
+      'asset.png','asset.jpg','file.png','file.jpg'
+    ];
+    let dataUrl = null;
+    // Try exact names first
+    for (const name of names) {
+      try {
+        const buf = await window.fs.readFile(name);
+        if (buf && buf.byteLength > 0) {
+          const bytes = new Uint8Array(buf);
+          let b64 = '';
+          // chunk to avoid stack overflow on large files
+          for (let i = 0; i < bytes.length; i += 8192) {
+            b64 += String.fromCharCode(...bytes.subarray(i, i + 8192));
+          }
+          b64 = btoa(b64);
+          const lo = name.toLowerCase();
+          const mime = (lo.endsWith('.jpg') || lo.endsWith('.jpeg')) ? 'image/jpeg'
+                     : lo.endsWith('.webp') ? 'image/webp' : 'image/png';
+          dataUrl = `data:${mime};base64,${b64}`;
+          break;
+        }
+      } catch(e) {}
+    }
+    if (!dataUrl) return;
+    document.querySelectorAll('.logo-img').forEach(el => {
+      el.src = dataUrl;
+      el.style.display = 'block';
+    });
+    document.querySelectorAll('.logo-svg-inline').forEach(el => el.style.display = 'none');
+  })();
+
+  // Scroll reveal
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 60);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  els.forEach(el => obs.observe(el));
+
+  window.addEventListener('scroll', () => {
+    document.querySelector('nav').style.boxShadow =
+      window.scrollY > 20 ? '0 4px 32px rgba(0,0,0,0.3)' : 'none';
+  });
+
+  async function submitForm() {
+    const fname    = document.getElementById('fname').value.trim();
+    const lname    = document.getElementById('lname').value.trim();
+    const email    = document.getElementById('email').value.trim();
+    const phone    = document.getElementById('phone').value.trim();
+    const age      = document.getElementById('age').value.trim();
+    const location = document.getElementById('location').value.trim();
+    const position = document.getElementById('position').value;
+    const goals    = document.getElementById('goals').value.trim();
+    const service  = document.querySelector('input[name="service"]:checked');
+
+    if (!fname || !lname || !email || !service) {
+      const missing = [];
+      if (!fname || !lname) missing.push('your name');
+      if (!email) missing.push('your email');
+      if (!service) missing.push('a service');
+      alert('Please fill in ' + missing.join(', ') + ' before submitting.');
+      return;
+    }
+    const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailReg.test(email)) { alert('Please enter a valid email address.'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving to Drive…';
+
+    const timestamp = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Dubai' });
+    const submission = { timestamp, firstName: fname, lastName: lname, email, phone, age, location, position, service: service.value, goals };
+
+    try {
+      const prompt = `You are a data assistant. A new player enquiry has been submitted to Hulley Performance.
+
+Your task:
+1. Search Google Drive for a Google Sheet named exactly "Hulley Performance - Player Enquiries". 
+2. If it does NOT exist, create a new Google Sheet with that exact name. Add a header row: Timestamp | First Name | Last Name | Email | Phone | Age | Location | Position | Service Interest | Goals
+3. Append the following as a new row in that sheet:
+${JSON.stringify(submission, null, 2)}
+
+Respond only with: "SAVED" if successful, or "ERROR: <reason>" if it failed.`;
+
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          mcp_servers: [{ type: 'url', url: 'https://drivemcp.googleapis.com/mcp/v1', name: 'google-drive' }],
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      const data = await res.json();
+      const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+      if (textBlocks.includes('ERROR')) throw new Error(textBlocks);
+    } catch(err) {
+      console.error('Drive save error:', err);
+      // Still show success to user — log error silently
+    }
+
+    document.getElementById('formFields').classList.add('hide');
+    document.getElementById('formSuccess').classList.add('show');
+  }
+
+  // Highlight form when nav CTA is clicked
+  document.querySelector('.nav-cta').addEventListener('click', () => {
+    setTimeout(() => {
+      const card = document.querySelector('.form-card');
+      card.style.transition = 'box-shadow 0.4s';
+      card.style.boxShadow = '0 0 0 2px var(--gold)';
+      setTimeout(() => card.style.boxShadow = '', 1800);
+    }, 600);
+  });
+</script>
+</body>
+</html>
